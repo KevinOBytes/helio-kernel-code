@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package helio;
+
+// The Canonical Schema for Project Helio
+message Experiment {
+  string id = 1;
+  repeated Task tasks = 2;
+  HardwareCapability capability = 3;
+}
+
+message Task {
+  string id = 1;
+  string wasm_logic_hash = 2;
+  int64 timeout_ms = 3;
+}
+
+message StateTransition {
+  string current_state_hash = 1;
+  string parent_hash = 2;
+  string input_manifest_hash = 3;
+  string wasm_logic_hash = 4;
+  string telemetry_attestation = 5;
+}
+
+message HardwareCapability {
+  bool allow_network = 1;
+  bool allow_gpu = 2;
+  repeated string memory_limits = 3;
+}
