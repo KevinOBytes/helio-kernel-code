@@ -1,3 +1,5 @@
+pub mod proto;
+
 pub mod provenance {
     pub mod merkle_dag;
 }
