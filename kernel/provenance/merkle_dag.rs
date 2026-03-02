@@ -1,4 +1,6 @@
 use crate::proto::StateTransition;
+use ed25519_dalek::{Signature, Signer, SigningKey};
+use rand::rngs::OsRng;
 use serde_json::Value;
 use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
@@ -50,4 +52,18 @@ fn canonicalize_json(val: &Value) -> String {
         }
         Value::Null => "null".to_string(),
     }
+}
+
+/// Generates a new Ed25519 SigningKey for testing purposes.
+pub fn generate_signing_key() -> SigningKey {
+    let mut csprng = OsRng;
+    SigningKey::generate(&mut csprng)
+}
+
+/// Signs a StateTransition's calculated hash with the given SigningKey.
+/// Returns a hex-encoded string of the cryptographic signature.
+pub fn sign_transition(transition: &StateTransition, signing_key: &SigningKey) -> String {
+    let hash = calculate_transition_hash(transition);
+    let signature: Signature = signing_key.sign(hash.as_bytes());
+    hex::encode(signature.to_bytes())
 }

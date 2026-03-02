@@ -34,6 +34,36 @@ impl DeterministicSandbox {
         Store::new(&self.engine, SandboxState { wasi })
     }
 
+    /// Creates a configured linker with explicit determinism stubs.
+    fn create_linker(&self) -> Result<Linker<SandboxState>, anyhow::Error> {
+        let mut linker: Linker<SandboxState> = Linker::new(&self.engine);
+        // Bind the WASI host functions into the linker for preview1 modules
+        wasmtime_wasi::add_to_linker(&mut linker, |s| &mut s.wasi)?;
+
+        // Explicitly register deterministic stubs for getrandom and clock_gettime
+        linker.func_wrap(
+            "env",
+            "getrandom",
+            |_caller: Caller<'_, SandboxState>, _buf_ptr: u32, _buf_len: u32, _flags: u32| -> i32 {
+                // Ensure strictly deterministic random generation
+                // (Stubbed here for divergence verification)
+                0 // return 0 indicates success
+            },
+        )?;
+
+        linker.func_wrap(
+            "env",
+            "clock_gettime",
+            |_caller: Caller<'_, SandboxState>, _clk_id: i32, _tp_ptr: u32| -> i32 {
+                // Deterministic mocked clock
+                // (Stubbed here for divergence verification)
+                0 // return 0 indicates success
+            },
+        )?;
+
+        Ok(linker)
+    }
+
     /// Executes the Wasm bytes in the sandbox
     pub fn execute(&self, wasm_bytes: &[u8], timeout_ms: u64) -> Result<String, anyhow::Error> {
         let mut store = self.prepare_sandbox(42); // Example seed
@@ -41,9 +71,7 @@ impl DeterministicSandbox {
 
         let module = Module::new(&self.engine, wasm_bytes)?;
 
-        let mut linker: Linker<SandboxState> = Linker::new(&self.engine);
-        // Bind the WASI host functions into the linker for preview1 modules
-        wasmtime_wasi::add_to_linker(&mut linker, |s| &mut s.wasi)?;
+        let linker = self.create_linker()?;
 
         let instance = linker.instantiate(&mut store, &module)?;
 

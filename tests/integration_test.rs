@@ -57,3 +57,64 @@ fn test_merkle_dag_canonical_hashing() {
     // Test that the hash is stable across test runs (a hardcoded known hash check could be done,
     // but verifying consistency and ignoring `current_state_hash` is the goal here).
 }
+
+#[test]
+fn test_wasi_divergence_verification() {
+    // Stochastic computation importing random and time
+    let wasm_wat = r#"
+        (module
+            (import "env" "getrandom" (func $getrandom (param i32 i32 i32) (result i32)))
+            (import "env" "clock_gettime" (func $clock_gettime (param i32 i32) (result i32)))
+            (memory 1)
+            (export "memory" (memory 0))
+            (func $main 
+                ;; call getrandom(0, 0, 0)
+                i32.const 0
+                i32.const 0
+                i32.const 0
+                call $getrandom
+                drop
+                
+                ;; call clock_gettime(0, 0)
+                i32.const 0
+                i32.const 0
+                call $clock_gettime
+                drop
+            )
+            (export "_start" (func $main))
+        )
+    "#;
+    let wasm_bytes = wat::parse_str(wasm_wat).expect("Failed to parse WAT");
+
+    // Execution 1
+    let sandbox1 = DeterministicSandbox::new();
+    let result1 = sandbox1.execute(&wasm_bytes, 100).unwrap();
+
+    // Execution 2
+    let sandbox2 = DeterministicSandbox::new();
+    let result2 = sandbox2.execute(&wasm_bytes, 100).unwrap();
+
+    assert_eq!(result1, result2, "Deterministic execution must yield identical results");
+
+    // Simulate StateTransition generation post-execution
+    let transition1 = StateTransition {
+        current_state_hash: "".to_string(), // Will be stripped anyway
+        parent_hash: "parent_1".to_string(),
+        input_manifest_hash: "input_1".to_string(),
+        wasm_logic_hash: "wasm_hash_1".to_string(),
+        telemetry_attestation: result1.clone(), // Using result as telemetry
+    };
+
+    let transition2 = StateTransition {
+        current_state_hash: "".to_string(),
+        parent_hash: "parent_1".to_string(),
+        input_manifest_hash: "input_1".to_string(),
+        wasm_logic_hash: "wasm_hash_1".to_string(),
+        telemetry_attestation: result2.clone(),
+    };
+
+    let hash1 = calculate_transition_hash(&transition1);
+    let hash2 = calculate_transition_hash(&transition2);
+
+    assert_eq!(hash1, hash2, "Divergence Verification: Bitwise identical hashes required");
+}

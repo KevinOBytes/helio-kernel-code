@@ -17,6 +17,9 @@ bytes = "1.11.1"
 wasmtime-wasi = "14.0.0"
 anyhow = "1.0.102"
 wasmtime-wasi-io = "42.0.1"
+ed25519-dalek = { version = "2", features = ["rand_core"] }
+rand = "0.8"
+rand_core = "0.6"
 
 [build-dependencies]
 prost-build = "0.14.3"
