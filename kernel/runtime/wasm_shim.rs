@@ -111,7 +111,7 @@ impl DeterministicSandbox {
             .map_err(|_| anyhow::anyhow!("Module must export a _start function"))?;
 
         // Execute via synchronous method since we added sync to linker
-        let _ = start_func.call(&mut store, ())?;
+        start_func.call(&mut store, ())?;
 
         Ok("Wasm execution completed".to_string())
     }

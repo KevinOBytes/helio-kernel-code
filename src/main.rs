@@ -4,8 +4,8 @@ use helio_kernel::proto::{Experiment, HardwareCapability, StateTransition, Task}
 use helio_kernel::provenance::merkle_dag::{generate_signing_key, sign_transition};
 use helio_kernel::runtime::wasm_shim::DeterministicSandbox;
 use std::fs;
-use tracing::{info, warn};
-use tracing_subscriber::{fmt, EnvFilter};
+use tracing::info;
+use tracing_subscriber::EnvFilter;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about = "Project Helio Deterministic Wasm Execution CLI", long_about = None)]
