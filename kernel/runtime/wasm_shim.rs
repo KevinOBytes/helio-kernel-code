@@ -1,12 +1,12 @@
 use crate::proto::HardwareCapability;
 use wasmtime::*;
-use wasmtime_wasi::sync::WasiCtxBuilder;
-use wasmtime_wasi::WasiCtx;
+use wasmtime_wasi::WasiCtxBuilder;
+use wasmtime_wasi::preview1::WasiP1Ctx;
 
 /// System capabilities required by Helio for determinism.
 /// Everything runs inside isolated WASI components.
 pub struct SandboxState {
-    pub wasi: WasiCtx,
+    pub wasi: WasiP1Ctx,
 }
 
 /// The DeterministicSandbox binds Wasm execution to completely reproducible parameters
@@ -54,7 +54,7 @@ impl DeterministicSandbox {
             // (Mocking) In a real scenario, this would configure allowed network bindings.
         }
 
-        let wasi = wasi_builder.build();
+        let wasi = wasi_builder.build_p1();
 
         Store::new(&self.engine, SandboxState { wasi })
     }
@@ -62,8 +62,7 @@ impl DeterministicSandbox {
     /// Creates a configured linker with explicit determinism stubs.
     fn create_linker(&self) -> Result<Linker<SandboxState>, anyhow::Error> {
         let mut linker: Linker<SandboxState> = Linker::new(&self.engine);
-        // Bind the WASI host functions into the linker for preview1 modules
-        wasmtime_wasi::add_to_linker(&mut linker, |s| &mut s.wasi)?;
+        wasmtime_wasi::preview1::add_to_linker_sync(&mut linker, |s| &mut s.wasi)?;
 
         // Explicitly register deterministic stubs for getrandom and clock_gettime
         linker.func_wrap(
