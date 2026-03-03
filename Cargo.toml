@@ -6,6 +6,10 @@ edition = "2021"
 [lib]
 path = "kernel/lib.rs"
 
+[[bin]]
+name = "helio"
+path = "src/main.rs"
+
 [dependencies]
 wasmtime = "14.0.0"
 sha2 = "0.10"
@@ -20,6 +24,9 @@ wasmtime-wasi-io = "42.0.1"
 ed25519-dalek = { version = "2", features = ["rand_core"] }
 rand = "0.8"
 rand_core = "0.6"
+clap = { version = "4.5.60", features = ["derive"] }
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
 
 [build-dependencies]
 prost-build = "0.14.3"

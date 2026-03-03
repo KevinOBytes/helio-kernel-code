@@ -16,9 +16,14 @@ fn test_wasi_deterministic_sandbox() {
         )
     "#;
     let wasm_bytes = wat::parse_str(wasm_wat).expect("Failed to parse WAT");
+    let capability = helio_kernel::proto::HardwareCapability {
+        allow_network: false,
+        allow_gpu: false,
+        memory_limits: vec![],
+    };
 
-    let sandbox = DeterministicSandbox::new();
-    let result = sandbox.execute(&wasm_bytes, 100);
+    let sandbox = DeterministicSandbox::new(&capability);
+    let result = sandbox.execute(&wasm_bytes, 100, &capability);
 
     assert!(result.is_ok(), "Wasm execution failed: {:?}", result.err());
     assert_eq!(result.unwrap(), "Wasm execution completed");
@@ -86,15 +91,24 @@ fn test_wasi_divergence_verification() {
     "#;
     let wasm_bytes = wat::parse_str(wasm_wat).expect("Failed to parse WAT");
 
+    let capability = helio_kernel::proto::HardwareCapability {
+        allow_network: false,
+        allow_gpu: false,
+        memory_limits: vec![],
+    };
+
     // Execution 1
-    let sandbox1 = DeterministicSandbox::new();
-    let result1 = sandbox1.execute(&wasm_bytes, 100).unwrap();
+    let sandbox1 = DeterministicSandbox::new(&capability);
+    let result1 = sandbox1.execute(&wasm_bytes, 100, &capability).unwrap();
 
     // Execution 2
-    let sandbox2 = DeterministicSandbox::new();
-    let result2 = sandbox2.execute(&wasm_bytes, 100).unwrap();
+    let sandbox2 = DeterministicSandbox::new(&capability);
+    let result2 = sandbox2.execute(&wasm_bytes, 100, &capability).unwrap();
 
-    assert_eq!(result1, result2, "Deterministic execution must yield identical results");
+    assert_eq!(
+        result1, result2,
+        "Deterministic execution must yield identical results"
+    );
 
     // Simulate StateTransition generation post-execution
     let transition1 = StateTransition {
@@ -116,5 +130,8 @@ fn test_wasi_divergence_verification() {
     let hash1 = calculate_transition_hash(&transition1);
     let hash2 = calculate_transition_hash(&transition2);
 
-    assert_eq!(hash1, hash2, "Divergence Verification: Bitwise identical hashes required");
+    assert_eq!(
+        hash1, hash2,
+        "Divergence Verification: Bitwise identical hashes required"
+    );
 }

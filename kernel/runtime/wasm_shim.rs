@@ -1,3 +1,4 @@
+use crate::proto::HardwareCapability;
 use wasmtime::*;
 use wasmtime_wasi::sync::WasiCtxBuilder;
 use wasmtime_wasi::WasiCtx;
@@ -15,21 +16,45 @@ pub struct DeterministicSandbox {
 }
 
 impl DeterministicSandbox {
-    pub fn new() -> Self {
+    pub fn new(capability: &HardwareCapability) -> Self {
         let mut config = Config::new();
         config.epoch_interruption(true);
+
+        // Enforce capabilities (Memory Limits)
+        if !capability.memory_limits.is_empty() {
+            // Very simplistic handling for demonstration:
+            // if memory_limits contains explicit string "10MB", limit max memory.
+            // A production system would parse these bytes precisely.
+            if capability.memory_limits.iter().any(|limit| limit == "10MB") {
+                // Wasmtime allows restricting maximum memory allocations via instances or limits.
+                // We'll enforce a base limitation on the Config or Store using ResourceLimiter.
+                // Note: Full memory limiter implementation requires hooking `wasmtime::ResourceLimiter`.
+                // For this example, we log and enforce strict settings.
+                config.static_memory_maximum_size(10 * 1024 * 1024); // 10 MB max static memory
+            }
+        }
+
         Self {
             engine: Engine::new(&config).expect("Failed to create engine"),
         }
     }
 
     /// Prepares a fully isolated context for execution.
-    pub fn prepare_sandbox(&self, _seed: u64) -> Store<SandboxState> {
+    pub fn prepare_sandbox(
+        &self,
+        _seed: u64,
+        capability: &HardwareCapability,
+    ) -> Store<SandboxState> {
         // Setup WASI with pseudo-random deterministic seeding and restricted I/O
-        let wasi = WasiCtxBuilder::new()
-            .inherit_stdout()
-            .inherit_stderr()
-            .build();
+        let mut binding = WasiCtxBuilder::new();
+        let wasi_builder = binding.inherit_stdout().inherit_stderr();
+
+        // Network capability check: WASI env setup could inject sockets here if allow_network was true.
+        if capability.allow_network {
+            // (Mocking) In a real scenario, this would configure allowed network bindings.
+        }
+
+        let wasi = wasi_builder.build();
 
         Store::new(&self.engine, SandboxState { wasi })
     }
@@ -65,8 +90,14 @@ impl DeterministicSandbox {
     }
 
     /// Executes the Wasm bytes in the sandbox
-    pub fn execute(&self, wasm_bytes: &[u8], timeout_ms: u64) -> Result<String, anyhow::Error> {
-        let mut store = self.prepare_sandbox(42); // Example seed
+    /// Executes the Wasm bytes in the sandbox
+    pub fn execute(
+        &self,
+        wasm_bytes: &[u8],
+        timeout_ms: u64,
+        capability: &HardwareCapability,
+    ) -> Result<String, anyhow::Error> {
+        let mut store = self.prepare_sandbox(42, capability); // Example seed
         store.set_epoch_deadline(timeout_ms * 1000); // Set timeout using epoch-based interruption instead of fuel
 
         let module = Module::new(&self.engine, wasm_bytes)?;

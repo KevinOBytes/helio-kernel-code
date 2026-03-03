@@ -1,23 +1,10 @@
 {
-  "attestation": {
-    "experiment_id": "HELIO-EXP-001",
-    "timestamp": "2026-03-01T20:10:23Z",
-    "hardware_fingerprint": {
-      "cpu_vendor": "AuthenticAMD",
-      "gpu_model": "NVIDIA H100",
-      "driver_version": "535.104.05"
-    },
-    "bitwise_tolerance": {
-      "floating_point": "strict",
-      "randomness": "deterministic"
-    },
-    "state_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-  },
-  "signatures": [
-    {
-      "algorithm": "Ed25519",
-      "public_key": "c3JvYXM4OWZhZHNmYmNhMzQy...",
-      "signature": "ZWE4ZmNmZGFhMzUyMzRm..."
-    }
-  ]
+  "experiment_id": "HELIO-DEMO-001",
+  "signature": "01946160c20f841f94f8a784222aa0175d626d1ba32abfd32c7b3b7805087ef15a303ae9b234bfda8bf0d05623c22923d5173c4b24190e7d31a381c81e446406",
+  "transition": {
+    "input_manifest_hash": "HELIO-DEMO-001",
+    "parent_hash": "GENESIS",
+    "telemetry_attestation": "Wasm execution completed",
+    "wasm_logic_hash": "mock-hash-123"
+  }
 }
