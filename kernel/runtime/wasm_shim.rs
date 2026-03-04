@@ -18,7 +18,7 @@ pub struct DeterministicSandbox {
 impl DeterministicSandbox {
     pub fn new(capability: &HardwareCapability) -> Self {
         let mut config = Config::new();
-        config.epoch_interruption(true);
+        config.consume_fuel(true);
 
         // Enforce capabilities (Memory Limits)
         if !capability.memory_limits.is_empty() {
@@ -93,11 +93,11 @@ impl DeterministicSandbox {
     pub fn execute(
         &self,
         wasm_bytes: &[u8],
-        timeout_ms: u64,
+        fuel_limit: u64,
         capability: &HardwareCapability,
     ) -> Result<String, anyhow::Error> {
         let mut store = self.prepare_sandbox(42, capability); // Example seed
-        store.set_epoch_deadline(timeout_ms * 1000); // Set timeout using epoch-based interruption instead of fuel
+        store.set_fuel(fuel_limit).unwrap(); // Restrict execution deterministically by instruction count
 
         let module = Module::new(&self.engine, wasm_bytes)?;
 

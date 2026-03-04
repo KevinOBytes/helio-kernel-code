@@ -23,7 +23,7 @@ fn test_wasi_deterministic_sandbox() {
     };
 
     let sandbox = DeterministicSandbox::new(&capability);
-    let result = sandbox.execute(&wasm_bytes, 100, &capability);
+    let result = sandbox.execute(&wasm_bytes, 1_000_000, &capability);
 
     assert!(result.is_ok(), "Wasm execution failed: {:?}", result.err());
     assert_eq!(result.unwrap(), "Wasm execution completed");
@@ -99,11 +99,11 @@ fn test_wasi_divergence_verification() {
 
     // Execution 1
     let sandbox1 = DeterministicSandbox::new(&capability);
-    let result1 = sandbox1.execute(&wasm_bytes, 100, &capability).unwrap();
+    let result1 = sandbox1.execute(&wasm_bytes, 1_000_000, &capability).unwrap();
 
     // Execution 2
     let sandbox2 = DeterministicSandbox::new(&capability);
-    let result2 = sandbox2.execute(&wasm_bytes, 100, &capability).unwrap();
+    let result2 = sandbox2.execute(&wasm_bytes, 1_000_000, &capability).unwrap();
 
     assert_eq!(
         result1, result2,

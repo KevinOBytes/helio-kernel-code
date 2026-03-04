@@ -24,7 +24,7 @@ chmod +x demo.sh
 ### What happens in the demo?
 1. The shell script compiles a small Rust workload (`payload/`) down to `wasm32-wasip1`. This payload executes math using pseudo-random seeds and checks the system time.
 2. The Orchestrator Kernel (`helio-kernel`) is built as a binary.
-3. The Orchestrator ingests the compiled Wasm, sandboxes it in `wasmtime`, applies simulated strict `HardwareCapability` boundaries, and runs it synchronously.
+3. The Orchestrator ingests the compiled Wasm, sandboxes it in `wasmtime`, applies simulated strict `HardwareCapability` boundaries, enforces a strict `fuel_limit` of WebAssembly instructions to prevent runaway payloads, and runs it synchronously.
 4. It catches the telemetry output, crafts a `StateTransition` Protobuf describing the state history, canonically serializes it (RFC 8785), hashes it, and strictly signs the execution graph via `Ed25519`.
 5. The final proof is dumped to `helio_manifest.sig.json`.
 

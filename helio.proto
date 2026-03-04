@@ -12,7 +12,7 @@ message Experiment {
 message Task {
   string id = 1;
   string wasm_logic_hash = 2;
-  int64 timeout_ms = 3;
+  uint64 fuel_limit = 3;
 }
 
 message StateTransition {

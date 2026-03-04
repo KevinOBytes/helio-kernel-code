@@ -44,7 +44,7 @@ fn main() -> Result<()> {
         tasks: vec![Task {
             id: "task-001".to_string(),
             wasm_logic_hash: "mock-hash-123".to_string(),
-            timeout_ms: 5000,
+            fuel_limit: 10_000_000,
         }],
         capability: Some(capability.clone()),
     };
@@ -56,7 +56,7 @@ fn main() -> Result<()> {
     let telemetry = sandbox
         .execute(
             &wasm_bytes,
-            experiment.tasks[0].timeout_ms as u64,
+            experiment.tasks[0].fuel_limit,
             &capability,
         )
         .context("Wasm execution failed")?;
