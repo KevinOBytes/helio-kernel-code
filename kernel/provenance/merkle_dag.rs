@@ -1,6 +1,6 @@
 use crate::proto::StateTransition;
 use ed25519_dalek::{Signature, Signer, SigningKey};
-use rand::Rng;
+use rand::RngExt;
 use serde_json::Value;
 use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
@@ -57,7 +57,7 @@ fn canonicalize_json(val: &Value) -> String {
 /// Generates a new Ed25519 SigningKey for testing purposes.
 pub fn generate_signing_key() -> SigningKey {
     let mut bytes = [0u8; 32];
-    rand::rng().fill_bytes(&mut bytes);
+    rand::rng().fill(&mut bytes);
     SigningKey::from_bytes(&bytes)
 }
 
