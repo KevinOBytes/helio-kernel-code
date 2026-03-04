@@ -747,26 +747,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "dirs"
-version = "4.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ca3aa72a6f96ea37bbc5aa912f6788242832f75369bdfdadcb0e38423f100059"
-dependencies = [
- "dirs-sys",
-]
-
-[[package]]
-name = "dirs-sys"
-version = "0.3.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1b1d1d91c932ef41c0f2663aa8b0ca0342d444d842c06914aa0a7e352d0bada6"
-dependencies = [
- "libc",
- "redox_users",
- "winapi",
-]
-
-[[package]]
 name = "dirs-sys-next"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2048,15 +2028,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "shellexpand"
-version = "2.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7ccc8076840c4da029af4f87e4e8daeb0fca6b87bbb02e10cb60b791450e11e4"
-dependencies = [
- "dirs",
-]
-
-[[package]]
 name = "shlex"
 version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3063,11 +3034,10 @@ dependencies = [
 
 [[package]]
 name = "wasmtime-wasi"
-version = "24.0.6"
+version = "42.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "34e407b075122508c38a0d80baf5313754ac685338626365d3deb70149aa8626"
+checksum = "ea938f6f4f11e5ffe6d8b6f34c9a994821db9511c3e9c98e535896f27d06bb92"
 dependencies = [
- "anyhow",
  "async-trait",
  "bitflags",
  "bytes",
@@ -3080,16 +3050,16 @@ dependencies = [
  "futures",
  "io-extras",
  "io-lifetimes",
- "once_cell",
- "rustix 0.38.44",
+ "rustix 1.1.4",
  "system-interface",
- "thiserror 1.0.69",
+ "thiserror 2.0.18",
  "tokio",
  "tracing",
  "url",
- "wasmtime 24.0.6",
+ "wasmtime 42.0.1",
+ "wasmtime-wasi-io",
  "wiggle",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -3167,39 +3137,37 @@ dependencies = [
 
 [[package]]
 name = "wiggle"
-version = "24.0.6"
+version = "42.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3873cfb2841fe04a2a5d09c2f84770738e67d944b7c375246d6900be2723da52"
+checksum = "2dca2bf96d20f0c70e6741cc6c8c1a9ee4c3c0310c7ad1971242628c083cc9a5"
 dependencies = [
- "anyhow",
- "async-trait",
  "bitflags",
- "thiserror 1.0.69",
+ "thiserror 2.0.18",
  "tracing",
- "wasmtime 24.0.6",
+ "wasmtime 42.0.1",
+ "wasmtime-environ 42.0.1",
  "wiggle-macro",
 ]
 
 [[package]]
 name = "wiggle-generate"
-version = "24.0.6"
+version = "42.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8074d4528c162030bbafde77d7ded488f30fb1ff7732970c8293b9425c517d53"
+checksum = "d0d8c016d6d3ec6dc6b8c80c23cede4ee2386ccf347d01984f7991d7659f73ef"
 dependencies = [
- "anyhow",
- "heck 0.4.1",
+ "heck 0.5.0",
  "proc-macro2",
  "quote",
- "shellexpand",
  "syn",
+ "wasmtime-environ 42.0.1",
  "witx",
 ]
 
 [[package]]
 name = "wiggle-macro"
-version = "24.0.6"
+version = "42.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e7e4a8840138ac6170c6d16277680eb4f6baada47bc8a2678d66f264e00de966"
+checksum = "91a267096e48857096f035fffca29e22f0bbe840af4d74a6725eb695e1782110"
 dependencies = [
  "proc-macro2",
  "quote",
