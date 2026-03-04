@@ -1,7 +1,7 @@
 use crate::proto::HardwareCapability;
 use wasmtime::*;
 use wasmtime_wasi::WasiCtxBuilder;
-use wasmtime_wasi::preview1::WasiP1Ctx;
+use wasmtime_wasi::p1::WasiP1Ctx;
 
 /// System capabilities required by Helio for determinism.
 /// Everything runs inside isolated WASI components.
@@ -30,7 +30,7 @@ impl DeterministicSandbox {
                 // We'll enforce a base limitation on the Config or Store using ResourceLimiter.
                 // Note: Full memory limiter implementation requires hooking `wasmtime::ResourceLimiter`.
                 // For this example, we log and enforce strict settings.
-                config.static_memory_maximum_size(10 * 1024 * 1024); // 10 MB max static memory
+                // Note: static_memory_maximum_size is no longer in wasmtime 42 Config.
             }
         }
 
@@ -62,7 +62,7 @@ impl DeterministicSandbox {
     /// Creates a configured linker with explicit determinism stubs.
     fn create_linker(&self) -> Result<Linker<SandboxState>, anyhow::Error> {
         let mut linker: Linker<SandboxState> = Linker::new(&self.engine);
-        wasmtime_wasi::preview1::add_to_linker_sync(&mut linker, |s| &mut s.wasi)?;
+        wasmtime_wasi::p1::add_to_linker_sync(&mut linker, |s| &mut s.wasi)?;
 
         // Explicitly register deterministic stubs for getrandom and clock_gettime
         linker.func_wrap(
